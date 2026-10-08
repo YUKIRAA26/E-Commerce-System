@@ -2,37 +2,53 @@ package System;
 
 public class Main {
 	private static final UserManager userManager = new UserManager();
-	
+
 	public static void main(String[] args) {
 		Users isLogged = null;
-		while(isLogged == null) {
+		while (isLogged == null) {
 			loginMenu();
 			int choice = Exceptions.IntegerException("Enter choice: ");
-			
-			switch(choice) {
-				case 1 -> isLogged = userManager.login();
-				case 2 -> userManager.register();
+
+			switch (choice) {
+			case 1 -> isLogged = userManager.login();
+			case 2 -> userManager.register();
 			}
-		}
-		
-		if(isLogged != null) {
-			if(isLogged.getRole().equals("customer")) {
-				customerMenu();
-			}else if(isLogged.getRole().equals("admin")) {
-				adminMenu();
+
+			if (isLogged != null) {
+				if (isLogged.getRole().equals("customer")) {
+					CustomerManager cManager = new CustomerManager();
+					while (isLogged != null) {
+						customerMenu();
+						int choice1 = Exceptions.IntegerException("Choice: ");
+
+						switch (choice1) {
+						case 1 -> cManager.viewProduct();
+						case 2 -> cManager.searchProduct();
+						case 3 -> cManager.productCategory();
+						case 4 -> cManager.addToCart(isLogged);
+						case 5 -> cManager.viewCart(isLogged);
+						case 10 -> {
+							System.out.println("Logged out...");
+							isLogged = null;
+						}
+						}
+					}
+				} else if (isLogged.getRole().equals("admin")) {
+					adminMenu();
+				}
 			}
+
 		}
-		
 
 	}
-	
+
 	private static void loginMenu() {
 		System.out.println("--- Welcome To My E-Commerce ---");
 		System.out.println("1. Login");
 		System.out.println("2. Register");
 		System.out.println("3. Exit");
 	}
-	
+
 	private static void customerMenu() {
 		System.out.println("--- Customer Menu ---");
 		System.out.println("1. View Products");
@@ -46,7 +62,7 @@ public class Main {
 		System.out.println("9. View My Profile");
 		System.out.println("10. Logout");
 	}
-	
+
 	private static void adminMenu() {
 		System.out.println("--- Admin Menu ---");
 		System.out.println("1. View Products");
