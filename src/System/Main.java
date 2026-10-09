@@ -27,6 +27,10 @@ public class Main {
 						case 3 -> cManager.productCategory();
 						case 4 -> cManager.addToCart(isLogged);
 						case 5 -> cManager.viewCart(isLogged);
+						case 6 -> cManager.removeProductCart(isLogged);
+						case 7 -> cManager.checkOut(isLogged);
+						case 8 -> cManager.viewOrder(isLogged);
+						case 9 -> cManager.viewProfile(isLogged);
 						case 10 -> {
 							System.out.println("Logged out...");
 							isLogged = null;
