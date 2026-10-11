@@ -22,7 +22,7 @@ public class Main {
 						int choice1 = Exceptions.IntegerException("Choice: ");
 
 						switch (choice1) {
-						case 1 -> cManager.viewProduct();
+						case 1 -> CustomerManager.viewProduct();
 						case 2 -> cManager.searchProduct();
 						case 3 -> cManager.productCategory();
 						case 4 -> cManager.addToCart(isLogged);
@@ -38,7 +38,27 @@ public class Main {
 						}
 					}
 				} else if (isLogged.getRole().equals("admin")) {
-					adminMenu();
+					AdminManager aManager = new AdminManager();
+					while (isLogged != null) {
+						adminMenu();
+						int choice1 = Exceptions.IntegerException("Choice: ");
+
+						switch (choice1) {
+						case 1 -> aManager.viewProduct();
+						case 2 -> aManager.addProduct();
+						case 3 -> aManager.updateProduct();
+						case 4 -> aManager.deleteProduct();
+						case 5 -> aManager.managerCategory();
+						case 6 -> aManager.viewAllOrders();
+						case 7 -> aManager.updateOrderStatus();
+						case 8 -> aManager.viewAllUsers();
+						case 9 -> aManager.promoteUser();
+						case 10 -> {
+							System.out.println("Logged out...");
+							isLogged = null;
+						}
+						}
+					}
 				}
 			}
 

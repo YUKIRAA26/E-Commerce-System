@@ -14,36 +14,39 @@ public class CustomerManager {
 	private static List<Orders> orders = new ArrayList<>();
 	private static List<OrderItem> orderItem = new ArrayList<>();
 
-	public void viewProduct() {
+	public static void viewProduct() {
 		product.clear();
 		String select = "SELECT p.product_id, p.product_name, c.category_name, p.price FROM product p JOIN category c ON p.category_id = c.category_id ORDER BY p.product_id ASC";
 
-		try {
-			Connection con = DBConnection.getConnection();
-			PreparedStatement pt = con.prepareStatement(select);
-			ResultSet rs = pt.executeQuery();
+		try (Connection con = DBConnection.getConnection()) {
 
-			boolean found = false;
-			while (rs.next()) {
-				found = true;
-				int id = rs.getInt("product_id");
-				String pName = rs.getString("product_name");
-				String cName = rs.getString("category_name");
-				double price = rs.getDouble("price");
+			try (PreparedStatement pt = con.prepareStatement(select)) {
 
-				product.add(new Product(id, pName, cName, price));
+				try (ResultSet rs = pt.executeQuery()) {
+					boolean found = false;
+					while (rs.next()) {
+						found = true;
+						int id = rs.getInt("product_id");
+						String pName = rs.getString("product_name");
+						String cName = rs.getString("category_name");
+						double price = rs.getDouble("price");
 
-			}
+						product.add(new Product(id, pName, cName, price));
 
-			if (!found) {
-				System.out.println("No product found! ");
-				return;
-			}
-			System.out.println("--- Products ---");
-			System.out.print("No.\tProduct\t\tCategory\tPrice\n");
-			for (Product p : product) {
-				System.out.println(p.getProductID() + "\t" + p.getProductName() + "\t\t" + p.getCategoryName() + "\t"
-						+ "$" + p.getPrice() + "\n");
+					}
+
+					if (!found) {
+						System.out.println("No product found! ");
+						return;
+					}
+					System.out.println("--- Products ---");
+					System.out.print("No.\tProduct\t\tCategory\tPrice\n");
+					for (Product p : product) {
+						System.out.println(p.getProductID() + "\t" + p.getProductName() + "\t\t" + p.getCategoryName()
+								+ "\t" + "$" + p.getPrice() + "\n");
+					}
+				}
+
 			}
 
 		} catch (SQLException e) {
@@ -55,38 +58,39 @@ public class CustomerManager {
 		product.clear();
 		String search = "SELECT p.product_id, p.product_name, c.category_name, p.price FROM product p JOIN category c ON p.category_id = c.category_id WHERE p.product_name LIKE ?";
 
-		try {
-			Connection con = DBConnection.getConnection();
-			PreparedStatement pt = con.prepareStatement(search);
+		try (Connection con = DBConnection.getConnection()) {
 
-			System.out.println("--- Search Product ---");
-			System.out.println();
-			String name = Exceptions.StringException("Enter Product Name: ");
+			try (PreparedStatement pt = con.prepareStatement(search)) {
+				System.out.println("--- Search Product ---");
+				System.out.println();
+				String name = Exceptions.StringException("Enter Product Name: ");
 
-			pt.setString(1, "%" + name + "%");
+				pt.setString(1, "%" + name + "%");
 
-			ResultSet rs = pt.executeQuery();
+				try (ResultSet rs = pt.executeQuery()) {
+					boolean found = false;
+					while (rs.next()) {
+						found = true;
+						int id = rs.getInt("product_id");
+						String pName = rs.getString("product_name");
+						String cName = rs.getString("category_name");
+						double price = rs.getDouble("price");
 
-			boolean found = false;
-			while (rs.next()) {
-				found = true;
-				int id = rs.getInt("product_id");
-				String pName = rs.getString("product_name");
-				String cName = rs.getString("category_name");
-				double price = rs.getDouble("price");
+						product.add(new Product(id, pName, cName, price));
+					}
 
-				product.add(new Product(id, pName, cName, price));
-			}
+					if (!found) {
+						System.out.println("No product found! ");
+						return;
+					}
 
-			if (!found) {
-				System.out.println("No product found! ");
-				return;
-			}
+					System.out.print("No.\tProduct\t\tCategory\tPrice\n");
+					for (Product p : product) {
+						System.out.println(p.getProductID() + "\t" + p.getProductName() + "\t\t" + p.getCategoryName()
+								+ "\t" + "$" + p.getPrice() + "\n");
+					}
+				}
 
-			System.out.print("No.\tProduct\t\tCategory\tPrice\n");
-			for (Product p : product) {
-				System.out.println(p.getProductID() + "\t" + p.getProductName() + "\t\t" + p.getCategoryName() + "\t"
-						+ "$" + p.getPrice() + "\n");
 			}
 
 		} catch (SQLException e) {
@@ -98,22 +102,24 @@ public class CustomerManager {
 		product.clear();
 		String statement = "SELECT c.category_id, c.category_name, COUNT(p.product_id) AS product_count FROM category c LEFT JOIN product p ON c.category_id = p.category_id GROUP BY c.category_id, c.category_name ORDER BY c.category_id";
 
-		try {
-			Connection con = DBConnection.getConnection();
-			PreparedStatement pt = con.prepareStatement(statement);
+		try (Connection con = DBConnection.getConnection()) {
 
-			ResultSet rt = pt.executeQuery();
-			while (rt.next()) {
-				int categoryID = rt.getInt("category_id");
-				String categoryName = rt.getString("category_name");
-				int count = rt.getInt("product_count");
+			try (PreparedStatement pt = con.prepareStatement(statement)) {
+				try (ResultSet rt = pt.executeQuery()) {
+					while (rt.next()) {
+						int categoryID = rt.getInt("category_id");
+						String categoryName = rt.getString("category_name");
+						int count = rt.getInt("product_count");
 
-				product.add(new Product(categoryID, categoryName, count));
-			}
-			System.out.println("--- Product Category ---");
-			System.out.println("NO.\tCategory\t\tProducts");
-			for (Product p : product) {
-				System.out.println(p.getCategoryID() + "\t" + p.getCategoryName() + "\t\t" + p.getCount() + "\n");
+						product.add(new Product(categoryID, categoryName, count));
+					}
+					System.out.println("--- Product Category ---");
+					System.out.println("NO.\tCategory\t\tProducts");
+					for (Product p : product) {
+						System.out
+								.println(p.getCategoryID() + "\t" + p.getCategoryName() + "\t\t" + p.getCount() + "\n");
+					}
+				}
 
 			}
 
@@ -128,48 +134,54 @@ public class CustomerManager {
 
 		String update = "UPDATE cart_items SET quantity = quantity + ? WHERE user_id = ? AND product_id = ?";
 
-		try {
-			Connection con = DBConnection.getConnection();
-			PreparedStatement pt = con.prepareStatement(statement);
+		try (Connection con = DBConnection.getConnection()) {
 
-			PreparedStatement selct = con.prepareStatement(select);
 			// update
-			PreparedStatement upt = con.prepareStatement(update);
-			viewProduct();
-			int pID = Exceptions.IntegerException("Enter product ID: ");
 
-			selct.setInt(1, user.getUserID());
-			selct.setInt(2, pID);
-			ResultSet slt = selct.executeQuery();
+			try (PreparedStatement selct = con.prepareStatement(select)) {
+				viewProduct();
+				int pID = Exceptions.IntegerException("Enter product ID: ");
 
-			if (slt.next()) {
-				int quantity = Exceptions.IntegerException("Enter quantity: ");
-				upt.setInt(1, quantity);
-				upt.setInt(2, user.getUserID());
-				upt.setInt(3, pID);
-				upt.executeUpdate();
-				System.out.println("Succesfully update quantity");
-				return;
-			}
+				selct.setInt(1, user.getUserID());
+				selct.setInt(2, pID);
+				try (ResultSet slt = selct.executeQuery()) {
 
-			boolean found = false;
-			for (Product p : product) {
-				if (p.getProductID() == pID) {
-					found = true;
+					try (PreparedStatement upt = con.prepareStatement(update)) {
+						if (slt.next()) {
+							int quantity = Exceptions.IntegerException("Enter quantity: ");
+							upt.setInt(1, quantity);
+							upt.setInt(2, user.getUserID());
+							upt.setInt(3, pID);
+							upt.executeUpdate();
+							System.out.println("Succesfully update quantity");
+							return;
+						}
+
+						boolean found = false;
+						for (Product p : product) {
+							if (p.getProductID() == pID) {
+								found = true;
+							}
+						}
+
+						if (!found) {
+							System.out.println("Item not found!");
+							return;
+						}
+					}
+
 				}
-			}
 
-			if (!found) {
-				System.out.println("Item not found!");
-				return;
-			}
+				try (PreparedStatement pt = con.prepareStatement(statement)) {
+					int quantity = Exceptions.IntegerException("Enter quantity: ");
+					pt.setInt(1, user.getUserID());
+					pt.setInt(2, pID);
+					pt.setInt(3, quantity);
+					pt.executeUpdate();
+					System.out.println("Item added to cart! ");
+				}
 
-			int quantity = Exceptions.IntegerException("Enter quantity: ");
-			pt.setInt(1, user.getUserID());
-			pt.setInt(2, pID);
-			pt.setInt(3, quantity);
-			pt.executeUpdate();
-			System.out.println("Item added to cart! ");
+			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -240,9 +252,9 @@ public class CustomerManager {
 
 		String select = "SELECT * FROM cart_items WHERE user_id = ?";
 
-		Connection con = null;
-		try {
-			con = DBConnection.getConnection();
+		
+		try (Connection con = DBConnection.getConnection();){
+			
 
 			try (PreparedStatement pr = con.prepareStatement(select)) {
 				pr.setInt(1, user.getUserID());
@@ -260,7 +272,7 @@ public class CustomerManager {
 					int productId = Exceptions.IntegerException("Enter Product ID: ");
 					dlt.setInt(1, user.getUserID());
 					dlt.setInt(2, productId);
-					
+
 					int row = dlt.executeUpdate();
 
 					if (row > 0) {
@@ -427,24 +439,19 @@ public class CustomerManager {
 
 		String retOrder = "SELECT * FROM orders" + " WHERE user_id = ?";
 
-		String retData =     "SELECT oi.quantity, p.product_name, oi.price, "
-				  + "oi.price * oi.quantity AS sub_total "
-				  + "FROM order_items oi "
-				  + "JOIN product p ON oi.product_id = p.product_id "
-				  + "JOIN orders o ON oi.order_id = o.order_id "
-				  + "WHERE oi.order_id = ? AND o.user_id = ?";
-		
+		String retData = "SELECT oi.quantity, p.product_name, oi.price, " + "oi.price * oi.quantity AS sub_total "
+				+ "FROM order_items oi " + "JOIN product p ON oi.product_id = p.product_id "
+				+ "JOIN orders o ON oi.order_id = o.order_id " + "WHERE oi.order_id = ? AND o.user_id = ?";
+
 		String select = "SELECT * FROM orders WHERE order_id = ? AND user_id = ?";
 
-		String total =  "SELECT SUM(oi.price * oi.quantity) AS Total "
-				  + "FROM order_items oi "
-				  + "JOIN orders o ON oi.order_id = o.order_id "	
-				  + "WHERE oi.order_id = ? AND o.user_id = ?";
+		String total = "SELECT SUM(oi.price * oi.quantity) AS Total " + "FROM order_items oi "
+				+ "JOIN orders o ON oi.order_id = o.order_id " + "WHERE oi.order_id = ? AND o.user_id = ?";
 
 		Connection con = null;
 		try {
 			orders.clear();
-		
+
 			con = DBConnection.getConnection();
 			int orderId;
 			try (PreparedStatement pt = con.prepareStatement(retOrder)) {
@@ -456,7 +463,7 @@ public class CustomerManager {
 						System.out.println("No order yet! ");
 						return;
 					}
-					
+
 					do {
 						orderId = order.getInt("order_id");
 						double totalAmount = order.getDouble("total_amount");
@@ -480,15 +487,15 @@ public class CustomerManager {
 					System.out.println("Returning to menu...");
 					return;
 				}
-				
+
 				orderItem.clear();
 				int selectionOrderID = Exceptions.IntegerException("Enter Order ID to view: ");
-				
-				try(PreparedStatement pr = con.prepareStatement(select)){
+
+				try (PreparedStatement pr = con.prepareStatement(select)) {
 					pr.setInt(1, selectionOrderID);
 					pr.setInt(2, user.getUserID());
-					try(ResultSet rs = pr.executeQuery()){
-						if(!rs.next()) {
+					try (ResultSet rs = pr.executeQuery()) {
+						if (!rs.next()) {
 							System.out.println("Order id does not exist! ");
 							return;
 						}
@@ -521,21 +528,21 @@ public class CustomerManager {
 							double subTotal = rs.getDouble("sub_total");
 							String pName = rs.getString("product_name");
 
-							orderItem.add(new OrderItem(selectionOrderID,quantity, price, subTotal, pName));
+							orderItem.add(new OrderItem(selectionOrderID, quantity, price, subTotal, pName));
 						}
 					}
 
-						System.out.println("----- Order Item -----");
-						System.out.println("Order #" + selectionOrderID);
-						System.out.println("Product Name\tQuantity\tPrice\tSubtotal");
-						for(OrderItem o: orderItem) {
-						
-							System.out.println(o.getProductName() + "\t\t" + o.getQuantity() + "\t\t" + o.getPrice() + "\t"
-									+ o.getSubTotal());
-						}
-						System.out.println("---------------------");
-						System.out.println("Total: " + totalAmount);
-						System.out.println("---------------------\n");
+					System.out.println("----- Order Item -----");
+					System.out.println("Order #" + selectionOrderID);
+					System.out.println("Product Name\tQuantity\tPrice\tSubtotal");
+					for (OrderItem o : orderItem) {
+
+						System.out.println(o.getProductName() + "\t\t" + o.getQuantity() + "\t\t" + o.getPrice() + "\t"
+								+ o.getSubTotal());
+					}
+					System.out.println("---------------------");
+					System.out.println("Total: " + totalAmount);
+					System.out.println("---------------------\n");
 				}
 			}
 
@@ -551,33 +558,33 @@ public class CustomerManager {
 			}
 		}
 	}
-	
+
 	public void viewProfile(Users user) {
-	    String query = "SELECT user_id, username, full_name, email, role "
-	                 + "FROM users WHERE user_id = ?";
+		String query = "SELECT user_id, username, full_name, email, role " + "FROM users WHERE user_id = ?";
 
-	    try (Connection con = DBConnection.getConnection();
-	         PreparedStatement pt = con.prepareStatement(query)) {
+		try (Connection con = DBConnection.getConnection(); PreparedStatement pt = con.prepareStatement(query)) {
 
-	        pt.setInt(1, user.getUserID());
+			pt.setInt(1, user.getUserID());
 
-	        try (ResultSet rs = pt.executeQuery()) {
-	            if (rs.next()) {
-	                System.out.println("\n========== MY PROFILE ==========");
-	                System.out.println("User ID   : " + rs.getInt("user_id"));
-	                System.out.println("Username  : " + rs.getString("username"));
-	                System.out.println("Full Name : " + rs.getString("full_name"));
-	                System.out.println("Email     : " + rs.getString("email"));
-	                System.out.println("Role      : " + rs.getString("role"));
-	                System.out.println("================================");
-	            } else {
-	                System.out.println("Profile not found!");
-	            }
-	        }
+			try (ResultSet rs = pt.executeQuery()) {
+				if (rs.next()) {
+					System.out.println("\n========== MY PROFILE ==========");
+					System.out.println("User ID   : " + rs.getInt("user_id"));
+					System.out.println("Username  : " + rs.getString("username"));
+					System.out.println("Full Name : " + rs.getString("full_name"));
+					System.out.println("Email     : " + rs.getString("email"));
+					System.out.println("Role      : " + rs.getString("role"));
+					System.out.println("================================");
+					
+					
+				} else {
+					System.out.println("Profile not found!");
+				}
+			}
 
-	    } catch (SQLException e) {
-	        System.out.println("Error retrieving profile.");
-	        e.printStackTrace();
-	    }
+		} catch (SQLException e) {
+			System.out.println("Error retrieving profile.");
+			e.printStackTrace();
+		}
 	}
 }
