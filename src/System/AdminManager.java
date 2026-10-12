@@ -446,7 +446,7 @@ public class AdminManager {
 		try(Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(query)){
 			
 			try(ResultSet rs = ps.executeQuery()){
-				System.out.println("orderID\tuserID\total amount\tstatus\t\tcreatedAt");
+				System.out.println("orderID\tuserID\ttotal amount\tstatus\t\tcreatedAt");
 				System.out.println("---------------------------------------------------------");
 				while(rs.next()) {
 					System.out.println(rs.getInt("order_id") + "\t" + rs.getInt("user_id") + "\t" 
